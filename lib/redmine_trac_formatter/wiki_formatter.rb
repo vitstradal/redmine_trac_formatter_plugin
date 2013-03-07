@@ -25,7 +25,7 @@ module RedmineTracFormatter
 
       ### PARAGRAPHS
       # TODO: verify that this behavior is valid - opening and closing entire wikitext with p tags
-      text = "<p>#{text}</p>"
+      text = "<p>#{text}\n</p>"
       text.gsub!(/\r\n/, "\n") # remove any CRLF with just LF
       text.gsub!(/\r/, "\n")   # now replace CR by itself with LF
 
@@ -351,11 +351,15 @@ module RedmineTracFormatter
       Oniguruma::ORegexp.new('(?<![\'!])\'\'(.+?)(?<![\'!])\'\'').gsub!(t, '<em>\1</em>')
       Oniguruma::ORegexp.new('(?<![!:])//(.+?)(?<!!)//').gsub!(t, '<em>\1</em>')
 
-       # strike sub and sup
+       # ~~strike~~ ,,sub,, and ^sup^
 
       Oniguruma::ORegexp.new('(?<![!:])~~(.+?)(?<!!)~~').gsub!(t, '<strike>\1</strike>')
-      Oniguruma::ORegexp.new('(?<![!:])\^\^(.+?)(?<!!)\^\^').gsub!(t, '<sup>\1</sup>')
+      Oniguruma::ORegexp.new('(?<![!:])\^(.+?)(?<!!)\^').gsub!(t, '<sup>\1</sup>')
       Oniguruma::ORegexp.new('(?<![!:]),,(.+?)(?<!!),,').gsub!(t, '<sub>\1</sub>')
+
+      # inline {{{ code }}}  or `code`
+      #Oniguruma::ORegexp.new('(?<![!:])\{\{\{(.+?)(?<!!)\}\}\}').gsub!(t, '<code>\1</code>')
+      #Oniguruma::ORegexp.new('(?<![!:])`(.+?)(?<!!)`').gsub!(t, '<code>\1</code>')
 
       # HEADINGS
       Oniguruma::ORegexp.new('(?<!!)===== (.+?)(?<!!) =====').gsub!(t, '<h5>\1</h5>')
