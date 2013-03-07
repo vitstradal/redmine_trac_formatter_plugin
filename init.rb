@@ -1,6 +1,6 @@
 # Redmine Trac Wiki Formatter
 require 'redmine'
-require 'plugins/redmine_trac_formatter/app/helpers/redmine_trac_formatter/helper.rb'
+require 'redmine_trac_formatter'
 
 ::Rails.logger.info 'Starting Trac formatter for Redmine'
 

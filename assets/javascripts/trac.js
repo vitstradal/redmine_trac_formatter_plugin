@@ -5,7 +5,7 @@ jsToolBar.prototype.elements.bold = {
 	type: 'button',
 	title: 'Bold',
 	fn: {
-		wiki: function() { this.singleTag("'''", "'''") }
+		wiki: function() { this.singleTag("*", "*") }
 	}
 }
 
@@ -77,9 +77,9 @@ jsToolBar.prototype.elements.h3 = {
 		}
 	}
 }
-/*
 // spacer
 jsToolBar.prototype.elements.space2 = {type: 'space'}
+
 
 // ul
 jsToolBar.prototype.elements.ul = {
@@ -137,15 +137,17 @@ jsToolBar.prototype.elements.pre = {
 	type: 'button',
 	title: 'Preformatted',
 	fn: {
-		wiki: function() {
-			this.encloseLineSelection('','',function(str) {
-				str = str.replace(/\r/g,'');
-				return str.replace(/(\n|^) *([^\n]*)/g,"$1 $2");
-			});
-		}
+		wiki: function() { this.singleTag("{{{\n", "\n}}}\n") }
+//		wiki: function() {
+//			this.encloseLineSelection('','',function(str) {
+//				str = str.replace(/\r/g,'');
+//				return str.replace(/(\n|^) *([^\n]*)/g,"$1 $2");
+//			});
+//		}
 	}
 }
 
+/*
 // unpre
 jsToolBar.prototype.elements.unpre = {
 	type: 'button',

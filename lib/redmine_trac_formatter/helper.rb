@@ -15,7 +15,8 @@ module RedmineTracFormatter
         javascript_include_tag("lang/trac-#{current_language}", :plugin => 'redmine_trac_formatter') +
         javascript_tag(<<-EOS + (Setting.plugin_redmine_trac_formatter[:trac_formatter_require_block].to_s == 'true' ? <<-EOT : ''))
           var editor = $('#{field_id}');
-          var toolbar = new jsToolBar($('#{field_id}'));
+          //var toolbar = new jsToolBar($('#{field_id}'));
+          var toolbar = new jsToolBar(document.getElementById('#{field_id}'));
           toolbar.setHelpLink('#{help_link}');
           toolbar.draw();
         EOS
