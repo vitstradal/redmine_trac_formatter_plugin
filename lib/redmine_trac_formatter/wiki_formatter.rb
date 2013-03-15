@@ -75,6 +75,7 @@ module RedmineTracFormatter
                 formatted += "\n</blockquote>\n";
            else
                 formatted += parse_one_line_markup(t)
+                next
            end
         end
 
@@ -82,8 +83,10 @@ module RedmineTracFormatter
         if !parse_line && block_ending == "LI"
           if is_list_line(t)
             formatted += parse_list_line(t)
+            next
           elsif is_list_continuation(t)
             formatted += parse_one_line_markup(t)
+            next
           else
             parse_line = true
             block_ending = ""
@@ -95,6 +98,7 @@ module RedmineTracFormatter
         if !parse_line && block_ending == "CI"
           if is_citation_line(t)
             formatted += parse_citation_line(t)
+            next
           else
             parse_line = true
             block_ending = ""
@@ -316,10 +320,11 @@ module RedmineTracFormatter
 
 
     def is_list_continuation(t)
-      return t =~ /^(\s+)/
+      return t =~ /^\s+\S/
     end
     def is_list_line(t)
-      return t =~ /^(\s*)(-|\*|[-0-9a-zA-Z])\.? (.*)/
+      #return t =~ /^(\s*)(-|\*|[-0-9a-zA-Z])\.? (.*)/
+      return t =~ /^\s*(-|\*|[0-9a-zA-Z]\.)/
     end
 
     def parse_citation_line(t)
@@ -519,7 +524,12 @@ module RedmineTracFormatter
       #   ==> [http://example.com]
       Oniguruma::ORegexp.new('(?m:(^|\s)(https?://|s?ftps?://|www\.)(\S+))').gsub!(t) do
         #%(I_<a class="EXternal" href="#{$1}">#{$1}</a>_I)
-        %(#{$1}[#{$2}])
+        space, proto, rest = $1, $2, $3
+        if proto == 'www.'
+          %(#{space}[http://#{proto}#{rest} #{proto}#{rest}])
+        else
+          %(#{space}[#{proto}#{rest}])
+        end
       end
 
       # First, external links that we create link tags for ourselves:
