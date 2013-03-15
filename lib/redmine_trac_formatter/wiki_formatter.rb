@@ -271,7 +271,7 @@ module RedmineTracFormatter
       return t =~ /^(\s+)/
     end
     def is_list_line(t)
-      return t =~ /^(\s*)(\*|[0-9a-zA-Z])\.? (.*)/
+      return t =~ /^(\s*)(-|\*|[-0-9a-zA-Z])\.? (.*)/
     end
 
     def parse_list_line(t)
@@ -289,7 +289,7 @@ module RedmineTracFormatter
       #</li></ol></li></ol></li></ul>
       t.chomp!
       ret = ""
-      t =~ /^(\s*)(\*|[0-9a-zA-Z])\.? (.*)/
+      t =~ /^(\s*)(-|\*|[0-9a-zA-Z])\.? (.*)/
       spaces = $1
       num_spaces = $1.length
       type = $2
@@ -300,7 +300,7 @@ module RedmineTracFormatter
       if @list_levels.empty? || last_num_spaces < num_spaces
         started_new = true
         # starting a new (or deeper) level
-        if type =~ /\*\.?/
+        if type =~ /-|\*\.?/
           @list_levels.push([ num_spaces, "ul" ])
           ret += "\n#{spaces}<ul>\n"
         elsif type =~ /[0-9]\.?/
