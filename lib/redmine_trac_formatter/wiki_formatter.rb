@@ -422,6 +422,15 @@ module RedmineTracFormatter
         %(<a class="external" href="#{$1}#{$2}">#{text}</a>)
       end
 
+      # recognize raw URL:
+      #   http://example.com
+      #   https://example.com
+      #   ftp://example.com
+      #   www.example.com
+      Oniguruma::ORegexp.new('(?<!!)\b((https?://|s?ftps?://|www\.)(\S+))').gsub!(t) do
+        %(<a class="external" href="#{$1}">#{$1}</a>)
+      end
+
       # Now, other [bracketed] links:
       t.gsub!(/(.?)\[([a-z]+:)?([^\s\]]+)\s?(.*?)\]/) do
         all, negator, type, dest, text = $&, $1, $2, $3, $4
