@@ -69,16 +69,27 @@ module RedmineTracFormatter
 
         # quick hack: BLOCKQOUTE is CITATION
         if !parse_line && block_ending == "BQ"
-           if  ! is_blockquote_line(t)
+           if  is_blockquote_line(t)
+                formatted += parse_one_line_markup(t)
+                next
+           else
                 parse_line = true
                 block_ending = ''
                 formatted += "\n</blockquote>\n";
-           else
-                formatted += parse_one_line_markup(t)
-                next
            end
         end
 
+        # continuation of <dl><DD>
+        if !parse_line && block_ending == "DD"
+          if t =~ /^\s+/
+            formatted += parse_one_line_markup(t)
+            next
+          else
+            parse_line = true
+            block_ending = ""
+            formatted += "</dd></dl>"
+          end
+        end
         ### LISTS (END MULTI-LINE BLOCK)
         if !parse_line && block_ending == "LI"
           if is_list_line(t)
@@ -197,6 +208,14 @@ module RedmineTracFormatter
         #        multiple lines
         # <dl><dt>(term)</dt><dd>definition on
         #        multiple lines</dd></dl>
+        if t =~ /^([^:]+):: (.*)/
+          term, rest = $1,$2
+          formatted += "<dl><td>#{term}</td><dd>"
+          formatted += parse_one_line_markup(rest)
+          parse_line = false   # don't parse lines until we find the end
+          block_ending = "DD"  # so our code above knows we're buffering a list
+          t = "" # don't parse anything else on this line
+        end
 
         ### BLOCKQUOTES
         # TODO:
