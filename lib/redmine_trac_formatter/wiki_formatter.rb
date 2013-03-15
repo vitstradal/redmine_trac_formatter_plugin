@@ -37,6 +37,7 @@ module RedmineTracFormatter
       next_ending = ""
       tmp_buffer = ""
       @list_levels = []
+      @citation_level = 0
 
       text.each { |t|
         # look for things that end temp buffering blocks
@@ -66,6 +67,17 @@ module RedmineTracFormatter
           end
         end
 
+        # quick hack: BLOCKQOUTE is CITATION
+        if !parse_line && block_ending == "BQ"
+           if  ! is_blockquote_line(t)
+                parse_line = true
+                block_ending = ''
+                formatted += "\n</blockquote>\n";
+           else
+                formatted += parse_one_line_markup(t)
+           end
+        end
+
         ### LISTS (END MULTI-LINE BLOCK)
         if !parse_line && block_ending == "LI"
           if is_list_line(t)
@@ -73,9 +85,20 @@ module RedmineTracFormatter
           elsif is_list_continuation(t)
             formatted += parse_one_line_markup(t)
           else
-            parse_line = true  # don't parse lines until we find the end
-            block_ending = ""  # so our code above knows we're buffering a list
+            parse_line = true
+            block_ending = ""
             formatted += end_list(true)
+          end
+        end
+
+        ### CITATION (END MULTI-LINE BLOCK)
+        if !parse_line && block_ending == "CI"
+          if is_citation_line(t)
+            formatted += parse_citation_line(t)
+          else
+            parse_line = true
+            block_ending = ""
+            formatted += citation_level_to(0)
           end
         end
 
@@ -163,7 +186,6 @@ module RedmineTracFormatter
           t = "" # don't parse anything else on this line
         end
 
-        t = parse_one_line_markup(t)
 
         ### DEFINITION LISTS
         # TODO:
@@ -182,6 +204,13 @@ module RedmineTracFormatter
         #space the text is quoted
         #</p>
         #</blockquote>
+        if is_blockquote_line(t)
+          parse_line = false   # don't parse lines until we find the end
+          block_ending = "BQ"  # so our code above knows we're buffering a list
+          formatted += "<blockquote>\n"
+          formatted += parse_one_line_markup(t)
+          t = "" # don't parse anything else on this line
+        end
 
         ### DISCUSSION CITATIONS
         # TODO:
@@ -198,7 +227,12 @@ module RedmineTracFormatter
         #</p>
         #</blockquote>
         #
-
+        if is_citation_line(t)
+          parse_line = false   # don't parse lines until we find the end
+          block_ending = "CI"  # so our code above knows we're buffering a list
+          formatted += parse_citation_line(t)
+          t = "" # don't parse anything else on this line
+        end
         ### MACROS
         # TODO: probably won't do this unless redmine has it built in
         #[[MacroList(*)]] becomes a list of all available macros
@@ -228,6 +262,7 @@ module RedmineTracFormatter
         #}}}
         #
 
+        t = parse_one_line_markup(t)
         formatted += "#{t}\n"
       } # end of each block over string lines
 
@@ -260,8 +295,8 @@ module RedmineTracFormatter
           style=" style='text-align: center'"
         end
         if contents ==  ''
-	   colspan += 1
-	else
+           colspan += 1
+        else
           colspantxt = colspan > 1 ? " colspan='#{colspan}'": ''
           contents = parse_one_line_markup(contents)
           ret += "<#{boundary}#{style}#{colspantxt}>#{contents}</#{boundary}>"
@@ -271,11 +306,42 @@ module RedmineTracFormatter
       return "<tr>#{ret}</tr>\n"
     end
 
+    def is_citation_line(t)
+      return t =~ /^\s*>/
+    end
+
+    def is_blockquote_line(t)
+      return t =~ /^\s+/
+    end
+
+
     def is_list_continuation(t)
       return t =~ /^(\s+)/
     end
     def is_list_line(t)
       return t =~ /^(\s*)(-|\*|[-0-9a-zA-Z])\.? (.*)/
+    end
+
+    def parse_citation_line(t)
+      t =~ /^([\s>]*)(.*)/
+      qq = $1
+      rest_line = $2
+
+      return citation_level_to(qq.count('>')) + parse_one_line_markup(rest_line) 
+
+    end
+
+    def citation_level_to(n)
+        ret = ''
+        while @citation_level < n
+          ret += ("  " * @citation_level) + "<blockquote>\n"
+          @citation_level += 1
+        end
+        while @citation_level > n
+          @citation_level -= 1
+          ret += ("  " * @citation_level) + "</blockquote>\n"
+        end
+        return ret
     end
 
     def parse_list_line(t)
