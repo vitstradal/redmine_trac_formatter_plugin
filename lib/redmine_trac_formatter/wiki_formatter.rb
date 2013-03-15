@@ -400,9 +400,10 @@ module RedmineTracFormatter
         ret += (" " * @list_levels.last[0]) + "  </li>\n"
       end
 
-      if last_num_spaces > num_spaces
+      while last_num_spaces > num_spaces
         # ended previous list
         ret += (" " * last_num_spaces) + end_list
+        last_num_spaces = @list_levels.empty? ? 0 : @list_levels.last[0]
       end
 
       contents = parse_one_line_markup(contents)
