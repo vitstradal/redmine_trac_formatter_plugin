@@ -439,6 +439,23 @@ module RedmineTracFormatter
       # source:trunk/README@200#L25 links to version 200, line 25 of the same file[[br]]
       # RM:   NO CHANGE
 
+      # recognize creole style:
+      #   [[CONTENET]] --> [CONTENET]
+      Oniguruma::ORegexp.new('(?<!!)\[\[([^\]]*)\]\]').gsub!(t) do
+        %([#{$1}])
+      end
+
+      # recognize raw URL:
+      #   http://example.com
+      #   https://example.com
+      #   ftp://example.com
+      #   www.example.com
+      #   ==> [http://example.com]
+      Oniguruma::ORegexp.new('(?m:(^|\s)(https?://|s?ftps?://|www\.)(\S+))').gsub!(t) do
+        #%(I_<a class="EXternal" href="#{$1}">#{$1}</a>_I)
+        %(#{$1}[#{$2}])
+      end
+
       # First, external links that we create link tags for ourselves:
       # TRAC: [http://github.com GitHub]
       # RM:   "GitHub":http://github.com<br />
@@ -447,15 +464,6 @@ module RedmineTracFormatter
       Oniguruma::ORegexp.new('(?<!!)\[((?:https?://)|(?:s?ftps?://)|(?:www\.))(\S+)\s?(.*?)\]').gsub!(t) do
         text = ($3 == "" || $3 == nil) ? "#{$1}#{$2}" : $3
         %(<a class="external" href="#{$1}#{$2}">#{text}</a>)
-      end
-
-      # recognize raw URL:
-      #   http://example.com
-      #   https://example.com
-      #   ftp://example.com
-      #   www.example.com
-      Oniguruma::ORegexp.new('(?<!!)\b((https?://|s?ftps?://|www\.)(\S+))').gsub!(t) do
-        %(<a class="external" href="#{$1}">#{$1}</a>)
       end
 
       # Now, other [bracketed] links:
