@@ -70,6 +70,8 @@ module RedmineTracFormatter
         if !parse_line && block_ending == "LI"
           if is_list_line(t)
             formatted += parse_list_line(t)
+          elsif is_list_continuation(t)
+            formatted += parse_one_line_markup(t)
           else
             parse_line = true  # don't parse lines until we find the end
             block_ending = ""  # so our code above knows we're buffering a list
@@ -265,6 +267,9 @@ module RedmineTracFormatter
       return "<tr>#{ret}</tr>\n"
     end
 
+    def is_list_continuation(t)
+      return t =~ /^(\s+)/
+    end
     def is_list_line(t)
       return t =~ /^(\s*)(\*|[0-9a-zA-Z])\.? (.*)/
     end
