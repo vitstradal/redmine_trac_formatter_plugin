@@ -25,7 +25,7 @@ module RedmineTracFormatter
 
       ### PARAGRAPHS
       # TODO: verify that this behavior is valid - opening and closing entire wikitext with p tags
-      text = "<p>#{text}\n</p>"
+      text = "<p>\n#{text}\n</p>"
       text.gsub!(/\r\n/, "\n") # remove any CRLF with just LF
       text.gsub!(/\r/, "\n")   # now replace CR by itself with LF
       # || \ (newline) || -> '||"
