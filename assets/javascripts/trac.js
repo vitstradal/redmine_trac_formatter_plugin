@@ -108,13 +108,9 @@ jsToolBar.prototype.elements.ol = {
                 wiki: function() {
                         this.encloseLineSelection('','',function(str) {
                                 str = str.replace(/\r/g,'');
-//                                if (!str.match(/(\n|^)(?!\(\d+\))[^\s\*]/)) {
-//                                  return str;
-//                                }
                                 var i = 0;
                                 var non_list_lines = str.replace(/(\n|^)\d+\.[^\n]*/g, '');
 
-                                //if (!str.match(/(\n|^)(?!\d+\.\s)/)) {
                                 if (non_list_lines == '') {
                                   // every line start with: 1. something
                                   // so: make it order
