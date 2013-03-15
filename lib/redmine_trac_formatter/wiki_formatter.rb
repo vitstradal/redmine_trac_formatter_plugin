@@ -233,6 +233,8 @@ module RedmineTracFormatter
     def parse_table_line(t)
       t = t.chomp.gsub(/^\s*\|\|(.*)\|\|\s*$/, '\1')
       ret = ""
+      colspan = 1
+
       t.each("||") { |cell|
         cell.gsub!(/\|\|\s*$/, '')
         boundary = "td"
@@ -247,8 +249,14 @@ module RedmineTracFormatter
         elsif contents =~ /.*\S$/
           style=" style='text-align: right'"
         end
-        contents = parse_one_line_markup(contents)
-        ret += "<#{boundary}#{style}>#{contents}</#{boundary}>"
+        if contents ==  ''
+	   colspan += 1
+	else
+          colspantxt = colspan > 1 ? " colspan='#{colspan}'": ''
+          contents = parse_one_line_markup(contents)
+          ret += "<#{boundary}#{style}#{colspantxt}>#{contents}</#{boundary}>"
+          colspan = 1
+        end
       }
       return "<tr>#{ret}</tr>\n"
     end
