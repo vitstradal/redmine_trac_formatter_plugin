@@ -351,6 +351,10 @@ module RedmineTracFormatter
       Oniguruma::ORegexp.new('(?<![\'!])\'\'(.+?)(?<![\'!])\'\'').gsub!(t, '<em>\1</em>')
       Oniguruma::ORegexp.new('(?<![!:])//(.+?)(?<!!)//').gsub!(t, '<em>\1</em>')
 
+      # code {{{ }}} `code`
+      Oniguruma::ORegexp.new('(?<!!)\{\{\{(.+?)(?<!!)\}\}\}').gsub!(t, '<tt>\1</tt>')
+      Oniguruma::ORegexp.new('(?<!!)`(.+?)(?<!!)`').gsub!(t, '<tt>\1</tt>')
+
        # ~~strike~~ ,,sub,, and ^sup^
 
       Oniguruma::ORegexp.new('(?<![!:])~~(.+?)(?<!!)~~').gsub!(t, '<strike>\1</strike>')
