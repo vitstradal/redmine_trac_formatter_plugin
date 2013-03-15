@@ -28,6 +28,8 @@ module RedmineTracFormatter
       text = "<p>#{text}\n</p>"
       text.gsub!(/\r\n/, "\n") # remove any CRLF with just LF
       text.gsub!(/\r/, "\n")   # now replace CR by itself with LF
+      # || \ (newline) || -> '||"
+      text.gsub!(/\|\|\s*\\\s*\n\s*\|\|/, "||")   # now replace multiline table rows
 
       formatted = ""
       parse_line = true
@@ -232,11 +234,13 @@ module RedmineTracFormatter
 
     def parse_table_line(t)
       t = t.chomp.gsub(/^\s*\|\|(.*)\|\|\s*$/, '\1')
+      t.gsub!('||', '<td>')
       ret = ""
       colspan = 1
 
-      t.each("||") { |cell|
-        cell.gsub!(/\|\|\s*$/, '')
+      t.each("<td>") { |cell|
+        #cell.gsub!(/\|\|\s*$/, '')
+        cell.gsub!(/<td>\s*$/, '')
         boundary = "td"
         style = ""
         contents = cell
