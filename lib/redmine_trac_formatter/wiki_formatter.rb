@@ -324,7 +324,7 @@ module RedmineTracFormatter
     end
     def is_list_line(t)
       #return t =~ /^(\s*)(-|\*|[-0-9a-zA-Z])\.? (.*)/
-      return t =~ /^\s*(-|\*|[0-9a-zA-Z]\.)/
+      return t =~ /^\s*(-|\*|[0-9a-zA-Z]\.)\s/
     end
 
     def parse_citation_line(t)
