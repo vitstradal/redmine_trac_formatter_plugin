@@ -289,12 +289,18 @@ module RedmineTracFormatter
         elsif type =~ /[0-9]\.?/
           @list_levels.push([ num_spaces, "ol" ])
           ret += "\n#{spaces}<ol>\n"
+        elsif type =~ /[i]\.?/
+          @list_levels.push([ num_spaces, "loweralpha" ])
+          ret += "\n#{spaces}<ol type='i' class='loweralpha'>\n"
+        elsif type =~ /[I]\.?/
+          @list_levels.push([ num_spaces, "loweralpha" ])
+          ret += "\n#{spaces}<ol type='I' class='loweralpha'>\n"
         elsif type =~ /[a-z]\.?/
           @list_levels.push([ num_spaces, "loweralpha" ])
-          ret += "\n#{spaces}<ol class='loweralpha'>\n"
+          ret += "\n#{spaces}<ol type='a' class='loweralpha'>\n"
         elsif type =~ /[A-Z]\.?/
           @list_levels.push([ num_spaces, "upperalpha" ])
-          ret += "\n#{spaces}<ol class='upperalpha'>\n"
+          ret += "\n#{spaces}<ol type='A' class='upperalpha'>\n"
         end
       end
 
