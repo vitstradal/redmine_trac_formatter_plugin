@@ -250,10 +250,14 @@ module RedmineTracFormatter
           boundary = "th"
           contents = $1
         end
+
         if contents =~ /^\S/
           style=" style='text-align: left'"
         elsif contents =~ /.*\S$/
           style=" style='text-align: right'"
+        elsif contents =~ /^\s\s.*\s\s$/
+          # two spaces on each side => center
+          style=" style='text-align: center'"
         end
         if contents ==  ''
 	   colspan += 1
