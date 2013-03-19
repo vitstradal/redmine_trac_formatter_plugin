@@ -144,11 +144,11 @@ module RedmineTracFormatter
 
         # Now do multi-line preformatted text parsing
         # TODO: lookbehind for negation !
-        if t =~ /^(.*?)\{\{\{(.*)$/
+        if t =~ /^\s*\{\{\{(.*)$/
           parse_line = false   # don't parse lines until we find the end
           block_ending = "}}}" # so our code above knows we're buffering preformatted text
-          t = $1 # parse everything before {{{ just like you normally would
-          tmp_buffer = "<pre class=\"wiki\">#{$2}\n" # store everything after in a temp buffer until }}} found
+          t = "" # parse everything before {{{ just like you normally would
+          tmp_buffer = "<pre class=\"wiki\">#{$1}\n" # store everything after in a temp buffer until }}} found
         end
 
         ### TABLES
@@ -184,7 +184,7 @@ module RedmineTracFormatter
         if is_list_line(t)
           parse_line = false   # don't parse lines until we find the end
           block_ending = "LI"  # so our code above knows we're buffering a list
-          formatted += parse_list_line(t)
+          formatted +=  parse_list_line(t)
           t = "" # don't parse anything else on this line
         end
 
@@ -527,7 +527,7 @@ module RedmineTracFormatter
       # RM:   NO CHANGE
 
       # recognize creole style:
-      #   [[CONTENET]] --> [CONTENET]
+      #   [[CONTENT]] --> [CONTENT]
       Oniguruma::ORegexp.new('(?<!!)\[\[([^\]]*)\]\]').gsub!(t) do
         %([#{$1}])
       end
