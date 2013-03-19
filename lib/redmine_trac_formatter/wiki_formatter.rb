@@ -133,19 +133,6 @@ module RedmineTracFormatter
           next
         end
 
-        # First parse preformatted text appearing all inline
-        ### MONOSPACE
-        # `this text`
-        # <tt>this text</tt>
-        # {{{this text}}}
-        # <tt>this text</tt>
-        if t =~ /(.*?)([^!]?)`(.+?[^!]?)`(.*)/ || t =~ /(.*?)([^!]?)\{\{\{(.+?[^!]?)\}\}\}(.*)/
-          formatted += parse_one_line_markup("#{$1}#{$2}")
-          formatted += "<tt>#{$3}</tt>"
-          formatted += parse_one_line_markup($4) + "\n"
-          next
-        end
-
         ### PREFORMATTED TEXT
         #{{{
         #multiple lines, ''no wiki''
@@ -454,6 +441,19 @@ module RedmineTracFormatter
     end
 
     def parse_one_line_markup(t)
+
+      ### MONOSPACE
+      # `this text`
+      # <tt>this text</tt>
+      # {{{this text}}}
+      # <tt>this text</tt>
+      if t =~ /(.*?)([^!]?)`(.+?[^!]?)`(.*)/ || t =~ /(.*?)([^!]?)\{\{\{(.+?[^!]?)\}\}\}(.*)/
+        start, tt, rest  =  "#{$1}#{$2}", "<tt>#{$3}</tt>", $4
+        start = parse_one_line_markup(start)
+        rest  = parse_one_line_markup(rest)
+        return start + tt + rest
+      end
+
       # FONT STYLES
       # Wikipedia style:
       Oniguruma::ORegexp.new('(?<!!)\'\'\'\'\'(.+?)(?<!!)\'\'\'\'\'').gsub!(t, '<strong><em>\1</em></strong>')
@@ -469,11 +469,7 @@ module RedmineTracFormatter
       Oniguruma::ORegexp.new('(?<![\'!])\'\'(.+?)(?<![\'!])\'\'').gsub!(t, '<em>\1</em>')
       Oniguruma::ORegexp.new('(?<![!:])//(.+?)(?<!!)//').gsub!(t, '<em>\1</em>')
 
-      # code {{{ }}} `code`
-      Oniguruma::ORegexp.new('(?<!!)\{\{\{(.+?)(?<!!)\}\}\}').gsub!(t, '<tt>\1</tt>')
-      Oniguruma::ORegexp.new('(?<!!)`(.+?)(?<!!)`').gsub!(t, '<tt>\1</tt>')
-
-       # ~~strike~~ ,,sub,, and ^sup^
+      # ~~strike~~ ,,sub,, and ^sup^
 
       Oniguruma::ORegexp.new('(?<![!:])~~(.+?)(?<!!)~~').gsub!(t, '<strike>\1</strike>')
       Oniguruma::ORegexp.new('(?<![!:])\^(.+?)(?<!!)\^').gsub!(t, '<sup>\1</sup>')
