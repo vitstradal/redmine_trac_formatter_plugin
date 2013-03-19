@@ -144,11 +144,11 @@ module RedmineTracFormatter
 
         # Now do multi-line preformatted text parsing
         # TODO: lookbehind for negation !
-        if t =~ /^\s*\{\{\{(.*)$/
+        if t =~ /^\{\{\{$/
           parse_line = false   # don't parse lines until we find the end
           block_ending = "}}}" # so our code above knows we're buffering preformatted text
           t = "" # parse everything before {{{ just like you normally would
-          tmp_buffer = "<pre class=\"wiki\">#{$1}\n" # store everything after in a temp buffer until }}} found
+          tmp_buffer = "<pre class=\"wiki\">\n" # store everything after in a temp buffer until }}} found
         end
 
         ### TABLES
